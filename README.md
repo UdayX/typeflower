@@ -32,13 +32,27 @@ Nothing is a filter over a bitmap — the letters are typeset, sampled and rebui
 | Group | What it does |
 |---|---|
 | **type** | Text, 8 system faces plus 10 web faces, weight, case, poster or paragraph layout, tracking, leading, alignment |
-| **field** | Flowers fill the letters or get cut out of a full field; 6 motion presets; canvas size; palette; ink strategy; dither amount; pixel size; flower size; wind; petal shape; stems; halos |
+| **field** | Flowers fill the letters or get cut out of a full field; 6 motion presets; canvas size; palette; ink strategy; dither amount; pixel size; flower size; wind; 6 flower species; petal shape; stems; halos |
 | **presets** | Four built-in looks, plus your own saved to this browser |
 | **export** | PNG, GIF, MP4 — all at the canvas size, not the window size |
 
 Press `⌘\` (or `Ctrl+\`) to hide the panel and give the canvas the whole window.
 
 Drag a `.ttf`, `.otf`, `.woff` or `.woff2` anywhere on the page to set your text in your own font. Nothing is uploaded; the file stays in the page.
+
+## Flowers
+
+Two axes compose. **Bloom** is how a flower is built, **shape** is the geometry of its petals — so a hexagon aster and a round aster are both asters.
+
+| Bloom | What it is | Reads best |
+|---|---|---|
+| daisy | petals ringed around a centre | the default, all sizes |
+| aster | thin spokes, almost no body | airy fields, large flowers |
+| tulip | a cup of three petals that leans downwind | directional, wind-driven work |
+| berry | a loose cluster, no centre | soft, organic masses |
+| rosette | two rings, the inner one offset | dense and jewel-like |
+| seed | a single mark | fine grids and small type — the most legible |
+| mixed | a species per flower, stable per cell | meadows |
 
 ## Legibility
 

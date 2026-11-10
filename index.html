@@ -58,9 +58,12 @@
     display: block; cursor: crosshair;
     box-shadow: 0 0 0 1px #1c1c23, 0 18px 50px -12px rgba(0, 0, 0, .8); }
 
-  #dims { position: fixed; top: 16px; right: 18px; color: var(--fg-2);
+  /* reserves the toggle's corner, so the readout can never run under it */
+  #dims { position: fixed; top: 18px; left: 0; right: 18px; text-align: right;
+    padding-left: calc(var(--bar-w) + 54px); color: var(--fg-2);
     font: 11px/1 var(--mono); letter-spacing: .04em; font-variant-numeric: tabular-nums;
-    pointer-events: none; }
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+  body.collapsed #dims { padding-left: 54px; }
 
   #hint { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
     padding-left: var(--bar-w); color: var(--fg-2); letter-spacing: .1em;
@@ -262,6 +265,11 @@
     <label title="Size of one dithered pixel in the export">pixel <input id="pix" type="range" min="1" max="6" step="1" value="2"></label>
     <label title="Spacing of the flower grid — bigger means fewer, larger flowers">flower size <input id="cell" type="range" min="4" max="20" step="1" value="7"></label>
     <label title="Strength of the wind, and of every motion built on it">wind <input id="wind" type="range" min="0" max="30" step="1" value="11"></label>
+    <label title="How each flower is built. Seed is a single mark and reads best on a fine grid">bloom <select id="bloom">
+      <option value="daisy">daisy</option><option value="aster">aster</option>
+      <option value="tulip">tulip</option><option value="berry">berry</option>
+      <option value="rosette">rosette</option><option value="seed">seed</option>
+      <option value="mix">mixed</option></select></label>
     <label title="Geometry of the petals">shape <select id="shape">
       <option value="mix">mixed</option><option value="3">triangle</option>
       <option value="4">square</option><option value="6">hexagon</option>
@@ -348,6 +356,7 @@ const ui = {
   lead: document.getElementById('lead'), align: document.getElementById('align'),
   crisp: document.getElementById('crisp'), motion: document.getElementById('motion'),
   halo: document.getElementById('halo'), ink: document.getElementById('ink'),
+  bloom: document.getElementById('bloom'),
   cell: document.getElementById('cell'), wind: document.getElementById('wind'),
   shape: document.getElementById('shape'), stems: document.getElementById('stems')
 };
@@ -634,6 +643,8 @@ function raster() {
       f.stem = step * (0.35 + rnd(f.seed + 5) * 0.9);
       const sh = ui.shape.value;
       f.sides = sh === 'mix' ? [3, 4, 5, 6, 0][Math.floor(rnd(f.seed + 6) * 5)] : +sh;
+      const sp = ui.bloom.value;
+      f.sp = sp === 'mix' ? SPECIES[Math.floor(rnd(f.seed + 11) * SPECIES.length)] : sp;
 
       // which letter owns this flower (knockout: nearest one) — drives the per-letter motion
       let bi = -1, bd = knock ? 1e9 : pad * pad * 9;
@@ -705,6 +716,69 @@ function addPoly(out, cx, cy, r, sides, rot) {
 
 const bucket = (map, key) => { let a = map.get(key); if (!a) map.set(key, a = []); return a; };
 
+/* Each species is a different way of arranging petals around a point. Petal geometry
+   (triangle, square, hexagon, round) is the other axis and composes with all of them. */
+const SPECIES = ['daisy', 'aster', 'tulip', 'berry', 'rosette', 'seed'];
+const HALO = { daisy: 1.12, aster: 1.08, tulip: 1.14, berry: 1.1, rosette: 1.12, seed: .95 };
+
+function buildFlower(sp, f, B, hx, hy, r, rot, lean) {
+  const petal = bucket(B.petal, f.c1), core = bucket(B.center, f.c2);
+  switch (sp) {
+    case 'aster': {                                  // thin spokes, almost no body
+      const w = Math.max(0.7, Math.round(r * 0.3) / 2);
+      const sk = bucket(B.spoke, f.c1 + '|' + w);
+      const n = f.n + 4;
+      for (let i = 0; i < n; i++) {
+        const a = rot + i / n * 6.2832, c = Math.cos(a), si = Math.sin(a);
+        sk.push('M', R1(hx + c * r * 0.26), ' ', R1(hy + si * r * 0.26),
+                'L', R1(hx + c * r * 1.02), ' ', R1(hy + si * r * 1.02));
+      }
+      addPoly(core, hx, hy, r * 0.3, f.sides, rot);
+      break;
+    }
+    case 'tulip': {                                  // a cup of three petals, leaning downwind
+      const up = -1.5708 + lean * 0.055, cy = hy + r * 0.16;
+      for (const off of [-0.58, 0, 0.58]) {
+        const a = up + off;
+        addPoly(petal, hx + Math.cos(a) * r * 0.46, cy + Math.sin(a) * r * 0.46,
+          r * (off ? 0.5 : 0.58), f.sides, a + 1.5708);
+      }
+      addPoly(core, hx, cy + r * 0.14, r * 0.28, f.sides, rot);
+      break;
+    }
+    case 'berry': {                                  // a loose cluster, no centre
+      for (let i = 0; i < 3; i++) {
+        const a = rot + i / 3 * 6.2832;
+        addPoly(petal, hx + Math.cos(a) * r * 0.34, hy + Math.sin(a) * r * 0.34, r * 0.46, 0, 0);
+      }
+      addPoly(core, hx, hy, r * 0.3, 0, 0);
+      break;
+    }
+    case 'rosette': {                                // two rings, the inner one offset
+      const n = f.n + 1;
+      for (let i = 0; i < n; i++) {
+        const a = rot + i / n * 6.2832;
+        addPoly(petal, hx + Math.cos(a) * r * 0.62, hy + Math.sin(a) * r * 0.62, r * 0.4, f.sides, a);
+      }
+      for (let i = 0; i < 4; i++) {
+        const a = rot + 0.7 + i / 4 * 6.2832;
+        addPoly(core, hx + Math.cos(a) * r * 0.26, hy + Math.sin(a) * r * 0.26, r * 0.3, f.sides, a);
+      }
+      break;
+    }
+    case 'seed':                                     // one mark: the finest grid this tool draws
+      addPoly(petal, hx, hy, r * 0.82, f.sides, rot);
+      if (r > 2.2) addPoly(core, hx, hy, r * 0.3, f.sides, rot + 0.6);
+      break;
+    default:                                         // daisy
+      for (let i = 0; i < f.n; i++) {
+        const a = rot + i / f.n * 6.2832;
+        addPoly(petal, hx + Math.cos(a) * r * 0.55, hy + Math.sin(a) * r * 0.55, r * 0.46, f.sides, a + f.rot);
+      }
+      addPoly(core, hx, hy, r * 0.33, f.sides, rot);
+  }
+}
+
 function collectFlower(f, t, amp, stems, halo, B) {
   const age = (t - f.birth) / 420;
   if (age < 0) return;
@@ -721,15 +795,9 @@ function collectFlower(f, t, amp, stems, halo, B) {
       'M', R1(f.x), ' ', R1(f.y + f.stem),
       'Q', R1(f.x + sway * 0.35), ' ', R1(f.y + f.stem * 0.45), ' ', R1(hx), ' ', R1(hy));
   }
-  if (halo) addPoly(B.halo, hx, hy, r * 1.12, 10, 0);
+  if (halo) addPoly(B.halo, hx, hy, r * (HALO[f.sp] || 1.12), 10, 0);
 
-  const rot = f.rot + sway * 0.035 + m.rot;
-  const pp = bucket(B.petal, f.c1);
-  for (let i = 0; i < f.n; i++) {
-    const a = rot + i / f.n * 6.2832;
-    addPoly(pp, hx + Math.cos(a) * r * 0.55, hy + Math.sin(a) * r * 0.55, r * 0.46, f.sides, a + f.rot);
-  }
-  addPoly(bucket(B.center, f.c2), hx, hy, r * 0.33, f.sides, rot);
+  buildFlower(f.sp, f, B, hx, hy, r, f.rot + sway * 0.035 + m.rot, sway);
 }
 
 /* ---------- ordered-dither quantize to palette ---------- */
@@ -784,7 +852,7 @@ function frame(t) {
   bx.fillStyle = pal[0];
   bx.fillRect(0, 0, W, H);
 
-  const B = { halo: [], petal: new Map(), center: new Map(), stem: new Map() };
+  const B = { halo: [], petal: new Map(), center: new Map(), stem: new Map(), spoke: new Map() };
   for (const f of flowers.values()) {
     const dx = f.x - mx, dy = f.y - my, d2 = dx * dx + dy * dy;
     const g = Math.exp(-d2 / (CELL * CELL * 30));
@@ -800,6 +868,13 @@ function frame(t) {
   }
   bx.globalAlpha = 1;
   if (halo && B.halo.length) { bx.fillStyle = pal[0]; bx.fill(new Path2D(B.halo.join(''))); }
+  bx.lineCap = 'round';
+  for (const [key, parts] of B.spoke) {
+    const i = key.lastIndexOf('|');
+    bx.strokeStyle = key.slice(0, i); bx.lineWidth = +key.slice(i + 1);
+    bx.stroke(new Path2D(parts.join('')));
+  }
+  bx.lineCap = 'butt';
   for (const [c, parts] of B.petal) { bx.fillStyle = c; bx.fill(new Path2D(parts.join(''))); }
   for (const [c, parts] of B.center) { bx.fillStyle = c; bx.fill(new Path2D(parts.join(''))); }
 
@@ -842,7 +917,7 @@ addEventListener('pointerleave', () => { mx = my = -1e4; });
 ui.pal.onchange = setPalette;
 ui.pix.oninput = resize;
 ui.size.onchange = resize;
-for (const k of ['mode', 'face', 'weight', 'case', 'layout', 'align', 'shape', 'ink'])
+for (const k of ['mode', 'face', 'weight', 'case', 'layout', 'align', 'shape', 'ink', 'bloom'])
   document.getElementById(k).onchange = () => withFont(raster);
 
 /* fonts the user drops in: registered with the same code path as the web faces */
@@ -902,23 +977,23 @@ document.getElementById('clear').onclick = () => {
 };
 /* ---------- presets ---------- */
 const CONTROLS = ['tap', 'face', 'weight', 'case', 'layout', 'tsize', 'track', 'lead', 'align',
-  'mode', 'motion', 'size', 'pal', 'ink', 'crisp', 'pix', 'cell', 'wind', 'shape', 'stems', 'halo'];
+  'mode', 'motion', 'size', 'pal', 'ink', 'crisp', 'pix', 'cell', 'wind', 'bloom', 'shape', 'stems', 'halo'];
 
 const BUILTIN = {
   'riso bloom': { tap: 'BLOOM', face: 'anton', weight: '900', case: 'upper', layout: 'poster',
     track: '5', lead: '108', align: 'center', mode: 'bloom', motion: 'wind', size: 'ig post 1:1',
-    pal: 'riso', crisp: '30', pix: '2', cell: '7', wind: '11', shape: 'mix', stems: true, halo: true },
+    pal: 'riso', crisp: '30', pix: '2', cell: '7', wind: '11', bloom: 'daisy', shape: 'mix', stems: true, halo: true },
   'garden knockout': { tap: 'GROW', face: 'bebas', weight: '400', case: 'upper', layout: 'poster',
     track: '12', lead: '100', align: 'center', mode: 'knock', motion: 'wave', size: 'ig story 9:16',
-    pal: 'garden', crisp: '20', pix: '2', cell: '6', wind: '14', shape: 'mix', stems: true, halo: true },
+    pal: 'garden', crisp: '20', pix: '2', cell: '6', wind: '14', bloom: 'mix', shape: 'mix', stems: true, halo: true },
   'paper paragraph': { tap: 'A field of geometric flowers dithered into language, swaying in a wind that is entirely made up.',
     face: 'fraunces', weight: '700', case: 'as', layout: 'para', tsize: '7', track: '2', lead: '125',
     align: 'center', mode: 'bloom', motion: 'wind', size: 'linkedin 1.91', pal: 'bloom', crisp: '15',
-    pix: '2', cell: '6', wind: '8', shape: '0', stems: false, halo: true },
+    pix: '2', cell: '6', wind: '8', bloom: 'berry', shape: '0', stems: false, halo: true },
   'gameboy jitter': { tap: 'PRESS\nSTART', face: 'space mono', weight: '700', case: 'upper',
     layout: 'poster', track: '8', lead: '115', align: 'center', mode: 'bloom', motion: 'jitter',
-    size: 'screen', pal: 'gameboy', crisp: '0', pix: '3', cell: '6', wind: '9', shape: '4',
-    stems: false, halo: true }
+    size: 'screen', pal: 'gameboy', crisp: '0', pix: '3', cell: '6', wind: '9', bloom: 'seed',
+    shape: '4', stems: false, halo: true }
 };
 
 const PRESET_KEY = 'typeflower.presets';
@@ -1233,6 +1308,15 @@ async function selftest() {
     }
     set('motion', 'wind');
     check('all motion presets return finite offsets', finite);
+
+    // every species draws, and none of them throws
+    for (const sp of [...SPECIES, 'mix']) {
+      set('bloom', sp);
+      await settle(260);
+      if (!flowers.size) { check('species ' + sp + ' grows flowers', false); break; }
+    }
+    set('bloom', 'daisy'); await settle();
+    check('every species renders', flowers.size > 0, SPECIES.length + ' species + mixed');
 
     // the dither only ever emits palette colours
     await painted();
