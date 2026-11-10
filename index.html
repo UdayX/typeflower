@@ -8,61 +8,230 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bebas+Neue&family=DM+Serif+Display&family=Fraunces:wght@400;700;900&family=Fredoka:wght@400;600;700&family=Playfair+Display:wght@400;700;900&family=Space+Grotesk:wght@400;700&family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap">
 <style>
-  :root { color-scheme: dark; }
+  :root {
+    color-scheme: dark;
+
+    /* surfaces: the stage is darkest, the panel sits a step above it */
+    --stage: #08080a;
+    --panel: #0e0e12;
+    --raised: #17171d;
+    --raised-hi: #1f1f27;
+    --line: #26262f;
+    --line-soft: #1b1b22;
+
+    /* text */
+    --fg: #ecedf1;
+    --fg-2: #a9aab5;
+    --fg-3: #7b7c88;
+
+    --accent: #ff4f58;
+    --accent-soft: rgba(255, 79, 88, .22);
+    --busy: #ffd23f;
+
+    --ui: system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+    --r-sm: 5px;
+    --r-md: 7px;
+    --control-h: 28px;
+    --bar-w: 268px;
+    --ease: cubic-bezier(.23, 1, .32, 1);          /* state changes: starts fast */
+    --ease-drawer: cubic-bezier(.32, .72, 0, 1);   /* the panel slide */
+  }
   * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; overflow: hidden; background: #000;
-    font: 12px/1.3 ui-monospace, "SF Mono", Menlo, monospace; }
-  body { background: #08080a; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--stage);
+    font: 12px/1.35 var(--ui); color: var(--fg); -webkit-font-smoothing: antialiased; }
+
+  /* browser surfaces belong to the design too */
+  ::selection { background: var(--accent-soft); color: #fff; }
+  #ui ::-webkit-scrollbar { width: 9px; }
+  #ui ::-webkit-scrollbar-track { background: transparent; }
+  #ui::-webkit-scrollbar { width: 9px; }
+  #ui::-webkit-scrollbar-track { background: transparent; }
+  #ui::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px;
+    border: 3px solid var(--panel); }
+  #ui::-webkit-scrollbar-thumb:hover { background: #33333f; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+  /* ---------- stage ---------- */
   #c { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
-    display: block; cursor: crosshair; box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 20px 60px rgba(0,0,0,.6); }
-  #status { display: block; margin-top: 6px; }
-  #dims { position: fixed; top: 14px; right: 16px; color: rgba(255,255,255,.45);
-    font-size: 10px; letter-spacing: .1em; pointer-events: none; }
-  #ui { position: fixed; left: 0; top: 0; width: 236px; height: 100vh; overflow-y: auto;
-    display: flex; flex-direction: column; gap: 6px; padding: 14px 14px 20px;
-    background: rgba(12,12,14,.92); border-right: 1px solid rgba(255,255,255,.12);
-    backdrop-filter: blur(8px); color: #e8e8e8; z-index: 2; }
-  #ui h2 { margin: 12px 0 2px; font-size: 9px; letter-spacing: .22em; text-transform: uppercase;
-    color: rgba(255,255,255,.35); font-weight: 400; }
-  #ui h2:first-of-type { margin-top: 2px; }
-  #ui label { display: flex; gap: 8px; align-items: center; justify-content: space-between;
-    white-space: nowrap; letter-spacing: .04em; text-transform: uppercase; font-size: 10px; color: #b9b9c2; }
-  #ui label > * { flex: 0 0 128px; }
-  input[type=range] { width: 128px; accent-color: #ff4f58; }
-  input[type=checkbox] { flex: 0 0 auto; margin-right: auto; }
-  .btns { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-  .btns button { flex: 1 1 46%; }
-  select, button { font: inherit; color: #e8e8e8; background: #1b1b20;
-    border: 1px solid rgba(255,255,255,.18); border-radius: 6px; padding: 4px 7px; cursor: pointer; }
-  button:hover, select:hover { border-color: rgba(255,255,255,.4); }
-  #hint { position: fixed; top: 14px; left: 60%; transform: translateX(-50%);
-    color: rgba(255,255,255,.5); letter-spacing: .14em; text-transform: uppercase;
-    font-size: 10px; pointer-events: none; transition: opacity .5s; }
-  #tap { font: inherit; width: 100%; padding: 6px 8px; color: #fff; background: #000; resize: vertical;
-    border: 1px solid rgba(255,255,255,.3); border-radius: 6px; letter-spacing: .06em; }
-  #tap:focus { outline: none; border-color: #ff4f58; }
-  #fontfile { font-size: 9px; color: #b9b9c2; }
-  #fontfile::file-selector-button { font: inherit; color: #e8e8e8; background: #1b1b20; cursor: pointer;
-    border: 1px solid rgba(255,255,255,.18); border-radius: 5px; padding: 3px 6px; margin-right: 6px; }
+    display: block; cursor: crosshair;
+    box-shadow: 0 0 0 1px #1c1c23, 0 18px 50px -12px rgba(0, 0, 0, .8); }
+
+  #dims { position: fixed; top: 16px; right: 18px; color: var(--fg-2);
+    font: 11px/1 var(--mono); letter-spacing: .04em; font-variant-numeric: tabular-nums;
+    pointer-events: none; }
+
+  #hint { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    padding-left: var(--bar-w); color: var(--fg-2); letter-spacing: .1em;
+    text-transform: uppercase; font-size: 11px; pointer-events: none;
+    transition: opacity .4s var(--ease); }
+  body.collapsed #hint { padding-left: 0; }
+
+  /* ---------- sidebar ---------- */
+  #ui { position: fixed; left: 0; top: 0; width: var(--bar-w); height: 100vh;
+    overflow-y: auto; overscroll-behavior: contain;
+    display: flex; flex-direction: column; padding: 0 16px 24px;
+    background: var(--panel); border-right: 1px solid var(--line-soft);
+    z-index: 2; transition: transform .26s var(--ease-drawer); }
+  body.collapsed #ui { transform: translateX(-100%); }
+  body.instant #ui, body.instant #toggle { transition: none; }
+
+  #brand { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px; margin: 0 -16px 4px; padding: 14px 16px 10px;
+    background: linear-gradient(var(--panel) 72%, transparent); }
+  #brand b { margin-right: auto; font-size: 13px; font-weight: 600; letter-spacing: .01em; }
+  #brand b i { font-style: normal; color: var(--accent); }
+  #mark { width: 17px; height: 17px; flex: none; color: var(--accent); }
+
+  #ui h2 { display: flex; align-items: center; gap: 10px;
+    margin: 24px 0 10px; font: 500 11px/1 var(--ui); letter-spacing: .14em;
+    text-transform: uppercase; color: var(--fg-3); }
+  #ui h2::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+  #ui h2:first-of-type { margin-top: 4px; }
+
+  #ui label { display: grid; grid-template-columns: 1fr 140px; gap: 10px;
+    align-items: center; min-height: var(--control-h); margin-bottom: 5px;
+    font-size: 11px; letter-spacing: .01em; color: var(--fg-2); white-space: nowrap; }
+  #ui label:has(#tap) { grid-template-columns: 1fr; gap: 5px; }
+
+  /* ---------- controls ---------- */
+  select, button, #tap {
+    font: 11.5px/1 var(--ui); color: var(--fg); background: var(--raised);
+    border: 1px solid var(--line); border-radius: var(--r-sm);
+    transition: background .14s var(--ease), border-color .14s var(--ease), color .14s var(--ease); }
+
+  select { height: var(--control-h); padding: 0 24px 0 8px; cursor: pointer;
+    appearance: none; text-overflow: ellipsis;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' fill='none' stroke='%23a9aab5' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5 4.5 5 8 1.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center; }
+  @media (hover: hover) and (pointer: fine) {
+    select:hover, button:hover:not([disabled]) { background: var(--raised-hi); border-color: #33333f; }
+    #toggle:hover { color: var(--fg); background: var(--raised); }
+            }
+  /* pressed controls answer the hand */
+  button:active:not([disabled]), .file:active { background: #121218; transform: scale(.97); }
+  select:active { background: #121218; }
+  optgroup { background: var(--panel); color: var(--fg-3); font-style: normal; }
+  option { background: var(--panel); color: var(--fg); }
+
+  button { height: var(--control-h); padding: 0 10px; cursor: pointer; letter-spacing: .02em;
+    transition: background .14s var(--ease), border-color .14s var(--ease),
+      color .14s var(--ease), transform .12s var(--ease); }
+  button[disabled] { opacity: .38; cursor: default; }
+  #pdel:hover:not([disabled]) { color: var(--accent); border-color: var(--accent-soft); }
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
+  .btns.three { grid-template-columns: repeat(3, 1fr); }
+  .btns.end { grid-template-columns: auto; justify-content: end; margin: 6px 0 2px; }
+  .btns.end button { height: 24px; padding: 0 10px; color: var(--fg-2);
+    background: transparent; border-color: var(--line-soft); }
+  .btns.end button:hover { color: var(--fg); background: var(--raised); }
+
+  #tap { width: 100%; min-height: 54px; padding: 8px 9px; resize: vertical;
+    font: 12px/1.45 var(--mono); letter-spacing: .02em; caret-color: var(--accent);
+    background: #000; border-color: #2d2d38; }
+  #tap:focus { outline: none; border-color: var(--accent); }
+  #tap::placeholder { color: var(--fg-3); }
+
+  .file { position: relative; display: grid; align-items: center; min-height: var(--control-h);
+    padding: 7px 9px; overflow: hidden; cursor: pointer;
+    font: 11px/1.2 var(--ui); color: var(--fg); background: var(--raised);
+    border: 1px solid var(--line); border-radius: var(--r-sm);
+    transition: background .14s var(--ease), border-color .14s var(--ease); }
+  .file:hover { background: var(--raised-hi); border-color: #33333f; }
+  .file:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .file span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #fontfile { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
+
+  input[type=range] { width: 140px; height: var(--control-h); margin: 0;
+    appearance: none; background: transparent; cursor: ew-resize; }
+  input[type=range]::-webkit-slider-runnable-track { height: 3px; border-radius: 99px; background: var(--line); }
+  input[type=range]::-moz-range-track { height: 3px; border-radius: 99px; background: var(--line); }
+  input[type=range]::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px;
+    margin-top: -4.5px; border-radius: 50%; background: var(--fg); border: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .6);
+    transition: background .14s var(--ease), transform .14s var(--ease); }
+  input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%;
+    background: var(--fg); box-shadow: 0 1px 3px rgba(0, 0, 0, .6); }
+  input[type=range]:hover::-webkit-slider-thumb { background: var(--accent); }
+  input[type=range]:active::-webkit-slider-thumb { background: var(--accent); transform: scale(1.15); }
+  input[type=range]:hover::-moz-range-thumb { background: var(--accent); }
+
+  input[type=checkbox] { justify-self: start; width: 15px; height: 15px; margin: 0;
+    accent-color: var(--accent); cursor: pointer; }
+
+  /* ---------- status ---------- */
+  #status { display: flex; align-items: center; gap: 7px; min-height: 16px; margin-top: 12px;
+    font: 11px/1.4 var(--mono); letter-spacing: .01em; color: var(--fg-2);
+    opacity: 0; transition: opacity .12s var(--ease); }
+  #status.on { opacity: 1; transition-duration: .2s; }
+  #status::before { content: ""; flex: none; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--fg-3); }
+  #status.busy { color: var(--busy); }
+  #status.busy::before { background: var(--busy); }
+
+  /* ---------- collapse ---------- */
+  #toggle { position: fixed; top: 14px; left: 12px; z-index: 3;
+    display: grid; place-items: center; width: 26px; height: 26px; padding: 0;
+    color: var(--fg-3); background: var(--panel); transform: translateX(var(--bar-w));
+    transition: transform .26s var(--ease-drawer), color .14s var(--ease),
+      background .14s var(--ease), border-color .14s var(--ease); }
+  body.collapsed #toggle { transform: none; }
+  #toggle svg { width: 12px; height: 12px; transition: transform .26s var(--ease); }
+  body.collapsed #toggle svg { transform: scaleX(-1); }
+  #toggle:active { transform: translateX(var(--bar-w)) scale(.94); }
+  body.collapsed #toggle:active { transform: scale(.94); }
+
+  /* ---------- font drop ---------- */
   #drop { position: fixed; inset: 0; z-index: 5; display: none; place-items: center;
-    background: rgba(8,8,10,.82); backdrop-filter: blur(2px); }
+    background: rgba(8, 8, 10, .86); backdrop-filter: blur(3px); }
   #drop.on { display: grid; }
-  #drop span { padding: 18px 26px; border: 2px dashed rgba(255,255,255,.45); border-radius: 12px;
-    color: #fff; letter-spacing: .18em; text-transform: uppercase; font-size: 11px; }
-  #status { color: #ffd23f; min-width: 90px; font-size: 10px; letter-spacing: .06em; }
-  button[disabled] { opacity: .4; cursor: default; }
+  #drop span { padding: 20px 28px; border: 1px dashed #3a3a46; border-radius: 10px;
+    color: var(--fg); letter-spacing: .14em; text-transform: uppercase; font-size: 11px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #ui, #toggle { transition: none; }
+    button:active:not([disabled]), .file:active, #toggle:active,
+    body.collapsed #toggle:active { transform: none; }
+    input[type=range]:active::-webkit-slider-thumb { transform: none; }
+  }
+  @media (max-width: 860px) {
+    :root { --bar-w: 252px; }
+    #ui label { grid-template-columns: 1fr 124px; }
+    input[type=range] { width: 124px; }
+  }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <div id="dims"></div>
+<button id="toggle" aria-label="Hide the controls" title="Hide the controls">
+  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"
+    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 2 3.5 6l4 4"/></svg>
+</button>
 <div id="drop"><span>drop a font &mdash; ttf, otf, woff, woff2</span></div>
 <div id="hint">type anything &mdash; move the mouse to stir the wind</div>
 <div id="ui">
+  <div id="brand">
+    <svg id="mark" viewBox="0 0 24 24" aria-hidden="true">
+      <g fill="currentColor">
+        <path d="M12 2.6 15 4.3v3.4L12 9.4 9 7.7V4.3Z"/>
+        <path d="M20.1 7.3v3.4l-3 1.7-3-1.7V7.3l3-1.7Z" opacity=".72"/>
+        <path d="M20.1 16.7 17.1 18.4l-3-1.7v-3.4l3-1.7 3 1.7Z" opacity=".52"/>
+        <path d="M12 21.4 9 19.7v-3.4l3-1.7 3 1.7v3.4Z" opacity=".72"/>
+        <path d="M3.9 16.7v-3.4l3-1.7 3 1.7v3.4l-3 1.7Z" opacity=".52"/>
+        <path d="M3.9 7.3 6.9 5.6l3 1.7v3.4l-3 1.7-3-1.7Z" opacity=".72"/>
+      </g>
+      <circle cx="12" cy="12" r="2.1" fill="var(--fg)"/>
+    </svg>
+    <b>Type<i>flower</i></b>
+  </div>
   <h2>type</h2>
     <textarea id="tap" rows="2" placeholder="type here…" autocomplete="off" spellcheck="false"></textarea>
+    <div class="btns end"><button id="clear" title="Empty the text">clear</button></div>
     <label title="Typeface used to set the text">face <select id="face"></select></label>
-    <label title="Load a font from your machine — or drop one anywhere on the page">your font <input id="fontfile" type="file" accept=".ttf,.otf,.woff,.woff2,font/*" multiple></label>
+    <label title="Load a font from your machine — or drop one anywhere on the page">your font
+      <span class="file"><span id="fontname">choose a file</span>
+        <input id="fontfile" type="file" accept=".ttf,.otf,.woff,.woff2,font/*" multiple></span></label>
     <label>weight <select id="weight">
       <option value="400">regular</option><option value="700">bold</option>
       <option value="900" selected>black</option></select></label>
@@ -106,11 +275,10 @@
       <button id="pdel" title="Delete the selected preset">delete</button>
     </div>
   <h2>export</h2>
-    <div class="btns">
+    <div class="btns three">
       <button id="save" title="Save a still at the canvas size">png</button>
       <button id="gif" title="Record a looping gif, about 2.3 seconds">gif</button>
       <button id="vid" title="Record 5 seconds of mp4, or webm where mp4 is unsupported">video</button>
-      <button id="clear" title="Empty the text">clear text</button>
     </div>
     <span id="status"></span>
 </div>
@@ -234,7 +402,9 @@ function outSize() {
 function resize() {
   PIX = +ui.pix.value;
   const dpr = Math.min(devicePixelRatio || 1, 2);
-  const BAR = 236, stageW = Math.max(240, innerWidth - BAR);
+  const panel = document.getElementById('ui');
+  const BAR = document.body.classList.contains('collapsed') ? 0 : panel.offsetWidth;
+  const stageW = Math.max(240, innerWidth - BAR);
   const p = PRESETS[ui.size.value];
   if (p) {
     const fit = Math.min((stageW - 60) / p[0], (innerHeight - 60) / p[1]);
@@ -699,6 +869,7 @@ async function useFontFiles(list) {
   for (const f of list) last = (await addFontFile(f)) || last;
   if (!last) return;
   ui.face.value = last;
+  document.getElementById('fontname').textContent = last;
   say(last + ' ready');
   withFont(raster);
 }
@@ -833,7 +1004,12 @@ document.getElementById('pdel').onclick = () => {
 fillPresetMenu('');
 
 const statusEl = document.getElementById('status');
-const say = m => statusEl.textContent = m;
+const BUSY_RE = /recording|encoding|\u2026/;
+const say = m => {
+  statusEl.textContent = m;
+  statusEl.classList.toggle('on', !!m);
+  statusEl.classList.toggle('busy', !!m && BUSY_RE.test(m));
+};
 function download(blobOrUrl, name) {
   const a = document.createElement('a');
   a.download = name;
@@ -988,6 +1164,23 @@ document.getElementById('vid').onclick = () => {
     if (left <= 0) { clearInterval(iv); rec.stop(); }
   }, 1000);
 };
+const toggleBar = (instant) => {
+  // keyboard actions get repeated: animating them only makes the tool feel slower
+  if (instant) {
+    document.body.classList.add('instant');
+    requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove('instant')));
+  }
+  document.body.classList.toggle('collapsed');
+  const hidden = document.body.classList.contains('collapsed');
+  const b = document.getElementById('toggle');
+  b.title = b.ariaLabel = hidden ? 'Show the controls' : 'Hide the controls';
+  resize();
+};
+document.getElementById('toggle').onclick = () => toggleBar(false);
+addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === '\\') { e.preventDefault(); toggleBar(true); }
+});
+
 addEventListener('resize', resize);
 
 setPalette();

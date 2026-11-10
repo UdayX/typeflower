@@ -36,6 +36,8 @@ Nothing is a filter over a bitmap — the letters are typeset, sampled and rebui
 | **presets** | Four built-in looks, plus your own saved to this browser |
 | **export** | PNG, GIF, MP4 — all at the canvas size, not the window size |
 
+Press `⌘\` (or `Ctrl+\`) to hide the panel and give the canvas the whole window.
+
 Drag a `.ttf`, `.otf`, `.woff` or `.woff2` anywhere on the page to set your text in your own font. Nothing is uploaded; the file stays in the page.
 
 ## Legibility
