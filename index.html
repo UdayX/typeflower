@@ -12,22 +12,22 @@
     color-scheme: dark;
 
     /* surfaces: the stage is darkest, the panel sits a step above it */
-    --stage: #08080a;
-    --panel: #0e0e12;
-    --raised: #17171d;
-    --raised-hi: #1f1f27;
-    --line: #26262f;
-    --line-soft: #1b1b22;
+    --stage: #080808;
+    --panel: #0e0e0e;
+    --raised: #171717;
+    --raised-hi: #202020;
+    --line: #272727;
+    --line-soft: #1c1c1c;
 
     /* text */
-    --fg: #ecedf1;
-    --fg-2: #a9aab5;
-    --fg-3: #7b7c88;
+    --fg: #ededed;
+    --fg-2: #ababab;
+    --fg-3: #7d7d7d;
 
     /* the UI is monochrome on purpose: every colour on screen belongs to the canvas */
-    --accent: #f4f4f7;
+    --accent: #f4f4f4;
     --accent-soft: rgba(255, 255, 255, .16);
-    --busy: #d6d7dd;
+    --busy: #d7d7d7;
 
     --ui: system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
     --mono: ui-monospace, "SF Mono", Menlo, monospace;
@@ -58,7 +58,7 @@
   #ui::-webkit-scrollbar-track { background: transparent; }
   #ui::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px;
     border: 3px solid var(--panel); }
-  #ui::-webkit-scrollbar-thumb:hover { background: #33333f; }
+  #ui::-webkit-scrollbar-thumb:hover { background: #343434; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
 
   /* ---------- icons: one grid, one stroke weight, inherited colour ---------- */
@@ -68,7 +68,7 @@
   /* ---------- stage ---------- */
   #c { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
     display: block; cursor: crosshair;
-    box-shadow: 0 0 0 1px #1c1c23, 0 18px 50px -12px rgba(0, 0, 0, .8); }
+    box-shadow: 0 0 0 1px #1d1d1d, 0 18px 50px -12px rgba(0, 0, 0, .8); }
 
   /* reserves the toggle's corner, so the readout can never run under it */
   #dims { position: fixed; top: 18px; left: 0; right: 18px; text-align: right;
@@ -121,12 +121,12 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6' fill='none' stroke='%23a9aab5' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5 4.5 5 8 1.5'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-position: right 8px center; }
   @media (hover: hover) and (pointer: fine) {
-    select:hover, button:hover:not([disabled]) { background: var(--raised-hi); border-color: #33333f; }
+    select:hover, button:hover:not([disabled]) { background: var(--raised-hi); border-color: #343434; }
     #toggle:hover { color: var(--fg); background: var(--raised); }
             }
   /* pressed controls answer the hand */
-  button:active:not([disabled]), .file:active { background: #121218; transform: scale(.97); }
-  select:active { background: #121218; }
+  button:active:not([disabled]), .file:active { background: #121212; transform: scale(.97); }
+  select:active { background: #121212; }
   optgroup { background: var(--panel); color: var(--fg-3); font-style: normal; }
   option { background: var(--panel); color: var(--fg); }
 
@@ -144,7 +144,7 @@
 
   #tap { width: 100%; min-height: 56px; margin-bottom: var(--s2); padding: var(--s2) 9px; resize: vertical;
     font: 12px/1.45 var(--mono); letter-spacing: .02em; caret-color: var(--accent);
-    background: #000; border-color: #2d2d38; }
+    background: #000; border-color: #2e2e2e; }
   #tap:focus { outline: none; border-color: var(--accent); }
   #tap::placeholder { color: var(--fg-3); }
 
@@ -216,10 +216,10 @@
 
   /* ---------- font drop ---------- */
   #drop { position: fixed; inset: 0; z-index: 5; display: none; place-items: center;
-    background: rgba(8, 8, 10, .86); backdrop-filter: blur(3px); }
+    background: rgba(8, 8, 8, .86); backdrop-filter: blur(3px); }
   #drop.on { display: grid; }
   #drop .i { width: 18px; height: 18px; }
-  #drop span { display: flex; align-items: center; gap: var(--s3); padding: 20px 28px; border: 1px dashed #3a3a46; border-radius: 10px;
+  #drop span { display: flex; align-items: center; gap: var(--s3); padding: 20px 28px; border: 1px dashed #3b3b3b; border-radius: 10px;
     color: var(--fg); letter-spacing: .14em; text-transform: uppercase; font-size: 11px; }
 
   @media (prefers-reduced-motion: reduce) {
