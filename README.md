@@ -25,7 +25,9 @@ Or use the hosted copy at **[udayx.github.io/typeflower](https://udayx.github.io
 
 Nothing is a filter over a bitmap — the letters are typeset, sampled and rebuilt every time you change a control.
 
-![The tool's interface: a control sidebar beside the canvas](docs/interface.jpg)
+![The tool's interface: a monochrome control panel beside the canvas](docs/interface.jpg)
+
+The interface is monochrome on purpose. Every colour on screen belongs to the canvas, so nothing in the panel competes with the work.
 
 ## Controls
 
@@ -33,7 +35,7 @@ The panel asks for a handful of decisions and hides the rest until you want them
 
 | Group | What it does |
 |---|---|
-| **start from** | A built-in look, or one of your own, as the opening move |
+| **start from** | A built-in look, or one of your own, as the opening move — save and delete sit beside the picker |
 | **type** | Your text, the face, poster or paragraph |
 | **field** | Flowers fill the letters or get cut out of a full field; species; motion; palette; flower size; wind |
 | **save** | Canvas size, then PNG, GIF or MP4 — all at that size, not the window's |
@@ -84,6 +86,10 @@ Chrome, Edge and Arc are the happy path. Safari and Firefox render and export PN
 ## Tests
 
 Open `index.html?selftest`, or call `selftest()` in the console. It runs ten checks — flowers grow, knockout inverts, paragraphs wrap, motion stays finite, every pixel is a palette colour, GIFs decode back pixel for pixel, PNGs come out at the canvas size, junk fonts are refused, presets restore every control — and prints a table.
+
+## Credits
+
+Icons are [Hugeicons Free](https://hugeicons.com), used under the MIT License. Typefaces are loaded from Google Fonts, with system stacks behind them.
 
 ## License
 

@@ -24,12 +24,20 @@
     --fg-2: #a9aab5;
     --fg-3: #7b7c88;
 
-    --accent: #ff4f58;
-    --accent-soft: rgba(255, 79, 88, .22);
-    --busy: #ffd23f;
+    /* the UI is monochrome on purpose: every colour on screen belongs to the canvas */
+    --accent: #f4f4f7;
+    --accent-soft: rgba(255, 255, 255, .16);
+    --busy: #d6d7dd;
 
     --ui: system-ui, -apple-system, "Segoe UI", Inter, sans-serif;
     --mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+    /* spacing scale: everything in the panel lands on one of these */
+    --s1: 4px;
+    --s2: 8px;
+    --s3: 12px;
+    --s4: 18px;
+    --s5: 26px;
 
     --r-sm: 5px;
     --r-md: 7px;
@@ -43,7 +51,7 @@
     font: 12px/1.35 var(--ui); color: var(--fg); -webkit-font-smoothing: antialiased; }
 
   /* browser surfaces belong to the design too */
-  ::selection { background: var(--accent-soft); color: #fff; }
+  ::selection { background: rgba(255, 255, 255, .2); color: #fff; }
   #ui ::-webkit-scrollbar { width: 9px; }
   #ui ::-webkit-scrollbar-track { background: transparent; }
   #ui::-webkit-scrollbar { width: 9px; }
@@ -52,6 +60,10 @@
     border: 3px solid var(--panel); }
   #ui::-webkit-scrollbar-thumb:hover { background: #33333f; }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+  /* ---------- icons: one grid, one stroke weight, inherited colour ---------- */
+  .i { width: 14px; height: 14px; flex: none; fill: none; stroke: currentColor;
+    stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
   /* ---------- stage ---------- */
   #c { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
@@ -74,7 +86,7 @@
   /* ---------- sidebar ---------- */
   #ui { position: fixed; left: 0; top: 0; width: var(--bar-w); height: 100vh;
     overflow-y: auto; overscroll-behavior: contain;
-    display: flex; flex-direction: column; padding: 0 16px 24px;
+    display: flex; flex-direction: column; padding: 0 var(--s4) var(--s5);
     background: var(--panel); border-right: 1px solid var(--line-soft);
     z-index: 2; transition: transform .26s var(--ease-drawer); }
   body.collapsed #ui { transform: translateX(-100%); }
@@ -83,18 +95,18 @@
   #brand { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px; margin: 0 -16px 4px; padding: 14px 16px 10px;
     background: linear-gradient(var(--panel) 72%, transparent); }
   #brand b { margin-right: auto; font-size: 13px; font-weight: 600; letter-spacing: .01em; }
-  #brand b i { font-style: normal; color: var(--accent); }
-  #mark { width: 17px; height: 17px; flex: none; color: var(--accent); }
+  #brand b i { font-style: normal; color: var(--fg-3); }
+  #mark { width: 17px; height: 17px; flex: none; color: var(--fg-2); }
 
   #ui h2 { display: flex; align-items: center; gap: 10px;
-    margin: 24px 0 10px; font: 500 11px/1 var(--ui); letter-spacing: .14em;
+    margin: var(--s5) 0 var(--s3); font: 500 11px/1 var(--ui); letter-spacing: .14em;
     text-transform: uppercase; color: var(--fg-3); }
   #ui h2::after { content: ""; order: 1; flex: 1; height: 1px; background: var(--line-soft); }
   #ui h2 button { order: 2; }
-  #ui h2:first-of-type { margin-top: 4px; }
+  #ui h2:first-of-type { margin-top: var(--s2); }
 
   #ui label { display: grid; grid-template-columns: 1fr 140px; gap: 10px;
-    align-items: center; min-height: var(--control-h); margin-bottom: 5px;
+    align-items: center; min-height: var(--control-h); margin-bottom: var(--s1);
     font-size: 11px; letter-spacing: .01em; color: var(--fg-2); white-space: nowrap; }
   #ui label:has(#tap) { grid-template-columns: 1fr; gap: 5px; }
 
@@ -118,31 +130,32 @@
   optgroup { background: var(--panel); color: var(--fg-3); font-style: normal; }
   option { background: var(--panel); color: var(--fg); }
 
-  button { height: var(--control-h); padding: 0 10px; cursor: pointer; letter-spacing: .02em;
+  button { display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: var(--control-h); padding: 0 10px; cursor: pointer; letter-spacing: .02em;
     transition: background .14s var(--ease), border-color .14s var(--ease),
       color .14s var(--ease), transform .12s var(--ease); }
   button[disabled] { opacity: .38; cursor: default; }
   #pdel:hover:not([disabled]) { color: var(--accent); border-color: var(--accent-soft); }
-  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); margin-top: var(--s2); }
   .btns.three { grid-template-columns: repeat(3, 1fr); }
   #ui h2 button { height: 21px; padding: 0 8px; font-size: 11px; color: var(--fg-3);
     background: transparent; border-color: var(--line-soft); letter-spacing: .02em;
     text-transform: none; }
 
-  #tap { width: 100%; min-height: 54px; padding: 8px 9px; resize: vertical;
+  #tap { width: 100%; min-height: 56px; margin-bottom: var(--s2); padding: var(--s2) 9px; resize: vertical;
     font: 12px/1.45 var(--mono); letter-spacing: .02em; caret-color: var(--accent);
     background: #000; border-color: #2d2d38; }
   #tap:focus { outline: none; border-color: var(--accent); }
   #tap::placeholder { color: var(--fg-3); }
 
-  .file { position: relative; display: grid; align-items: center; min-height: var(--control-h);
+  .file { position: relative; display: flex; align-items: center; gap: 7px; min-height: var(--control-h);
     padding: 7px 9px; overflow: hidden; cursor: pointer;
     font: 11px/1.2 var(--ui); color: var(--fg); background: var(--raised);
     border: 1px solid var(--line); border-radius: var(--r-sm);
     transition: background .14s var(--ease), border-color .14s var(--ease); }
-  .file:hover { background: var(--raised-hi); border-color: #33333f; }
+  .file .i { color: var(--fg-3); }
   .file:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .file span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #fontfile { position: absolute; inset: 0; width: 100%; opacity: 0; cursor: pointer; }
 
   input[type=range] { width: 140px; height: var(--control-h); margin: 0;
@@ -163,28 +176,31 @@
     accent-color: var(--accent); cursor: pointer; }
 
   /* ---------- disclosure ---------- */
-  details { margin: 2px 0 4px; }
+  details { margin: var(--s1) 0 var(--s2); }
   summary { display: flex; align-items: center; gap: 7px; height: 26px; cursor: pointer;
     list-style: none; color: var(--fg-3); font-size: 11px; letter-spacing: .01em;
     transition: color .14s var(--ease); }
   summary::-webkit-details-marker { display: none; }
-  summary::before { content: ""; width: 7px; height: 7px; border-right: 1.3px solid currentColor;
-    border-bottom: 1.3px solid currentColor; transform: rotate(-45deg) translate(-1px, -1px);
-    transition: transform .18s var(--ease); }
-  details[open] summary::before { transform: rotate(45deg) translate(-1px, -1px); }
+  summary .i { transform: rotate(-90deg); transition: transform .18s var(--ease); }
+  details[open] summary .i { transform: none; }
   details[open] summary { color: var(--fg-2); }
-  details > label:first-of-type { margin-top: 4px; }
-  .lead { margin-bottom: 10px; }
+  details > label:first-of-type { margin-top: var(--s2); }
+  #ui label.lead { grid-template-columns: 1fr; gap: var(--s1); margin-bottom: var(--s4); }
+  .pair { display: flex; gap: var(--s2); }
+  .pair select { flex: 1; min-width: 0; }
+  .pair button { width: var(--control-h); padding: 0; }
 
   /* ---------- status ---------- */
-  #status { display: flex; align-items: center; gap: 7px; min-height: 16px; margin-top: 12px;
-    font: 11px/1.4 var(--mono); letter-spacing: .01em; color: var(--fg-2);
+  #status { display: flex; align-items: center; gap: var(--s2); min-height: 16px;
+    margin: var(--s3) 0 0; font: 11px/1.4 var(--mono); letter-spacing: .01em; color: var(--fg-2);
     opacity: 0; transition: opacity .12s var(--ease); }
   #status.on { opacity: 1; transition-duration: .2s; }
-  #status::before { content: ""; flex: none; width: 5px; height: 5px; border-radius: 50%;
-    background: var(--fg-3); }
+  #status .i { width: 13px; height: 13px; color: var(--fg-3); }
   #status.busy { color: var(--busy); }
-  #status.busy::before { background: var(--busy); }
+  #status.busy .i { color: var(--busy); animation: spin 900ms linear infinite; }
+  #status.bad { color: var(--fg); }
+  #status.bad .i { color: var(--fg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ---------- collapse ---------- */
   #toggle { position: fixed; top: 14px; left: 12px; z-index: 3;
@@ -193,8 +209,8 @@
     transition: transform .26s var(--ease-drawer), color .14s var(--ease),
       background .14s var(--ease), border-color .14s var(--ease); }
   body.collapsed #toggle { transform: none; }
-  #toggle svg { width: 12px; height: 12px; transition: transform .26s var(--ease); }
-  body.collapsed #toggle svg { transform: scaleX(-1); }
+  #toggle .i { transition: transform .26s var(--ease); }
+  body.collapsed #toggle .i { transform: scaleX(-1); }
   #toggle:active { transform: translateX(var(--bar-w)) scale(.94); }
   body.collapsed #toggle:active { transform: scale(.94); }
 
@@ -202,7 +218,8 @@
   #drop { position: fixed; inset: 0; z-index: 5; display: none; place-items: center;
     background: rgba(8, 8, 10, .86); backdrop-filter: blur(3px); }
   #drop.on { display: grid; }
-  #drop span { padding: 20px 28px; border: 1px dashed #3a3a46; border-radius: 10px;
+  #drop .i { width: 18px; height: 18px; }
+  #drop span { display: flex; align-items: center; gap: var(--s3); padding: 20px 28px; border: 1px dashed #3a3a46; border-radius: 10px;
     color: var(--fg); letter-spacing: .14em; text-transform: uppercase; font-size: 11px; }
 
   @media (prefers-reduced-motion: reduce) {
@@ -219,13 +236,29 @@
 </style>
 </head>
 <body>
+<!-- Icons: Hugeicons Free (MIT) — https://hugeicons.com -->
+<svg id="sprite" aria-hidden="true" width="0" height="0" style="position:absolute">
+  <defs>
+    <g id="i-sidebar"><path d="M2 12C2 8.25027 2 6.3754 2.95491 5.06107C3.26331 4.6366 3.6366 4.26331 4.06107 3.95491C5.3754 3 7.25027 3 11 3H13C16.7497 3 18.6246 3 19.9389 3.95491C20.3634 4.26331 20.7367 4.6366 21.0451 5.06107C22 6.3754 22 8.25027 22 12C22 15.7497 22 17.6246 21.0451 18.9389C20.7367 19.3634 20.3634 19.7367 19.9389 20.0451C18.6246 21 16.7497 21 13 21H11C7.25027 21 5.3754 21 4.06107 20.0451C3.6366 19.7367 3.26331 19.3634 2.95491 18.9389C2 17.6246 2 15.7497 2 12Z"/><path d="M9.5 3.5L9.5 20.5"/><path d="M5 7C5 7 5.91421 7 6.5 7"/><path d="M5 11H6.5"/><path d="M17 10L15.7735 11.0572C15.2578 11.5016 15 11.7239 15 12C15 12.2761 15.2578 12.4984 15.7735 12.9428L17 14"/></g>
+    <g id="i-chevron"><path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9"/></g>
+    <g id="i-x"><path d="M18.9991 19L5 5.00098"/><path d="M19 5L5.00092 18.999"/></g>
+    <g id="i-image"><circle cx="7.5" cy="7.5" r="1.5"/><path d="M2.5 12C2.5 7.52166 2.5 5.28249 3.89124 3.89124C5.28249 2.5 7.52166 2.5 12 2.5C16.4783 2.5 18.7175 2.5 20.1088 3.89124C21.5 5.28249 21.5 7.52166 21.5 12C21.5 16.4783 21.5 18.7175 20.1088 20.1088C18.7175 21.5 16.4783 21.5 12 21.5C7.52166 21.5 5.28249 21.5 3.89124 20.1088C2.5 18.7175 2.5 16.4783 2.5 12Z"/><path d="M5 21C9.37246 15.775 14.2741 8.88406 21.4975 13.5424"/></g>
+    <g id="i-loop"><path d="M16.3884 3L17.3913 3.97574C17.8393 4.41165 18.0633 4.62961 17.9844 4.81481C17.9056 5 17.5888 5 16.9552 5H9.19422C5.22096 5 2 8.13401 2 12C2 13.4872 2.47668 14.8662 3.2895 16"/><path d="M7.61156 21L6.60875 20.0243C6.16074 19.5883 5.93673 19.3704 6.01557 19.1852C6.09441 19 6.4112 19 7.04478 19H14.8058C18.779 19 22 15.866 22 12C22 10.5128 21.5233 9.13383 20.7105 8"/></g>
+    <g id="i-video"><path d="M2 11C2 7.70017 2 6.05025 3.02513 5.02513C4.05025 4 5.70017 4 9 4H10C13.2998 4 14.9497 4 15.9749 5.02513C17 6.05025 17 7.70017 17 11V13C17 16.2998 17 17.9497 15.9749 18.9749C14.9497 20 13.2998 20 10 20H9C5.70017 20 4.05025 20 3.02513 18.9749C2 17.9497 2 16.2998 2 13V11Z"/><path d="M17 8.90585L17.1259 8.80196C19.2417 7.05623 20.2996 6.18336 21.1498 6.60482C22 7.02628 22 8.42355 22 11.2181V12.7819C22 15.5765 22 16.9737 21.1498 17.3952C20.2996 17.8166 19.2417 16.9438 17.1259 15.198L17 15.0941"/><circle cx="11.5" cy="9.5" r="1.5"/></g>
+    <g id="i-bookmark"><path d="M4.5 18.212V8.23515C4.5 5.53157 4.5 4.17979 5.32376 3.33989C6.14752 2.5 7.47335 2.5 10.125 2.5H13.875C16.5267 2.5 17.8525 2.5 18.6762 3.33989C19.5 4.17979 19.5 5.53158 19.5 8.23515V18.212C19.5 20.1274 19.5 21.0852 18.8987 21.4076C18.2975 21.7301 17.5234 21.1875 15.9753 20.1024L14.1245 18.805C13.0964 18.0843 12.5824 17.724 12 17.724C11.4176 17.724 10.9036 18.0843 9.87552 18.805L8.02469 20.1024C6.47657 21.1875 5.70252 21.7301 5.10126 21.4076C4.5 21.0852 4.5 20.1274 4.5 18.212Z"/></g>
+    <g id="i-trash"><path d="M18.8516 16.3743L19.5 6H4.5L5.14839 16.3743C5.315 19.0401 5.39831 20.373 6.26426 21.1865C7.13021 22 8.46571 22 11.1367 22H12.8633C15.5343 22 16.8698 22 17.7357 21.1865C18.6017 20.373 18.685 19.0401 18.8516 16.3743Z"/><path d="M16 6H21M16 6L15.3778 4.34082C15.0007 3.33524 14.8122 2.83245 14.4402 2.50292C14.3213 2.39765 14.1904 2.3069 14.0501 2.2326C13.6109 2 13.074 2 12 2C10.926 2 10.3891 2 9.9499 2.2326C9.8096 2.3069 9.67865 2.39765 9.55982 2.50292C9.18783 2.83245 8.99928 3.33524 8.62219 4.34082L8 6M16 6H8M3 6H8"/><path d="M9.5 11V17M14.5 11V17"/></g>
+    <g id="i-upload"><path d="M2.99994 17C2.99994 17.93 2.99994 18.395 3.10216 18.7765C3.37956 19.8117 4.18821 20.6204 5.22348 20.8978C5.60498 21 6.06997 21 6.99994 21L16.9999 21C17.9299 21 18.3949 21 18.7764 20.8978C19.8117 20.6204 20.6203 19.8117 20.8977 18.7765C20.9999 18.395 20.9999 17.93 20.9999 17"/><path d="M16.5 7.49993C16.5 7.49993 13.1858 2.99997 12 2.99996C10.8141 2.99995 7.50002 7.49996 7.50002 7.49996M12 3.99996V16"/></g>
+    <g id="i-check"><path d="M5 14L8.5 17.5L19 6.5"/></g>
+    <g id="i-alert"><path d="M13.9248 21H10.0752C5.44476 21 3.12955 21 2.27636 19.4939C1.42317 17.9879 2.60736 15.9914 4.97574 11.9985L6.90057 8.75333C9.17559 4.91778 10.3131 3 12 3C13.6869 3 14.8244 4.91777 17.0994 8.75332L19.0243 11.9985C21.3926 15.9914 22.5768 17.9879 21.7236 19.4939C20.8704 21 18.5552 21 13.9248 21Z"/><path d="M12 9V13"/><path d="M12.125 16.75H12M12.25 16.75C12.25 16.8881 12.1381 17 12 17C11.8619 17 11.75 16.8881 11.75 16.75C11.75 16.6119 11.8619 16.5 12 16.5C12.1381 16.5 12.25 16.6119 12.25 16.75Z"/></g>
+    <g id="i-busy"><path d="M12 3V6"/><path d="M12 18V21"/><path d="M21 12L18 12"/><path d="M6 12L3 12"/><path d="M18.3635 5.63672L16.2422 7.75804"/><path d="M7.75804 16.2422L5.63672 18.3635"/><path d="M18.3635 18.3635L16.2422 16.2422"/><path d="M7.75804 7.75804L5.63672 5.63672"/></g>
+  </defs>
+</svg>
 <canvas id="c"></canvas>
 <div id="dims"></div>
 <button id="toggle" aria-label="Hide the controls" title="Hide the controls">
-  <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"
-    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 2 3.5 6l4 4"/></svg>
+  <svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-sidebar"/></svg>
 </button>
-<div id="drop"><span>drop a font &mdash; ttf, otf, woff, woff2</span></div>
+<div id="drop"><span><svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-upload"/></svg>drop a font &mdash; ttf, otf, woff, woff2</span></div>
 <div id="hint">type anything &mdash; move the mouse to stir the wind</div>
 <div id="ui">
   <div id="brand">
@@ -242,17 +275,22 @@
     </svg>
     <b>Type<i>flower</i></b>
   </div>
-  <label class="lead" title="Load a saved look, then make it yours">start from <select id="preset"></select></label>
+  <label class="lead">start from
+    <span class="pair">
+      <select id="preset" title="Load a saved look, then make it yours"></select>
+      <button id="psave" aria-label="Save these settings as a preset" title="Save these settings as a preset"><svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-bookmark"/></svg></button>
+      <button id="pdel" aria-label="Delete the selected preset" title="Delete the selected preset"><svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-trash"/></svg></button>
+    </span></label>
 
-  <h2>type <button id="clear" title="Empty the text">clear</button></h2>
+  <h2>type <button id="clear" title="Empty the text"><svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-x"/></svg>clear</button></h2>
     <textarea id="tap" rows="2" placeholder="type here…" autocomplete="off" spellcheck="false"></textarea>
     <label title="Typeface used to set the text">face <select id="face"></select></label>
     <label title="Poster fits one or two lines to the canvas; paragraph wraps a block of text">layout <select id="layout">
       <option value="poster">poster</option><option value="para">paragraph</option></select></label>
     <details>
-      <summary>type detail</summary>
+      <summary><svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-chevron"/></svg>type detail</summary>
       <label title="Load a font from your machine — or drop one anywhere on the page">your font
-        <span class="file"><span id="fontname">choose a file</span>
+        <span class="file"><svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-upload"/></svg><span id="fontname">choose a file</span>
           <input id="fontfile" type="file" accept=".ttf,.otf,.woff,.woff2,font/*" multiple></span></label>
       <label>weight <select id="weight">
         <option value="400">regular</option><option value="700">bold</option>
@@ -284,7 +322,7 @@
     <label title="Spacing of the flower grid — bigger means fewer, larger flowers">flower size <input id="cell" type="range" min="4" max="20" step="1" value="7"></label>
     <label title="Strength of the wind, and of every motion built on it">wind <input id="wind" type="range" min="0" max="30" step="1" value="11"></label>
     <details>
-      <summary>field detail</summary>
+      <summary><svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-chevron"/></svg>field detail</summary>
       <label title="How palette colours are handed out. One per letter reads best">ink <select id="ink">
         <option value="scatter">scatter</option><option value="letter">one per letter</option>
         <option value="flow">across the line</option></select></label>
@@ -301,15 +339,11 @@
   <h2>save</h2>
     <label title="Output size. Exports render at this size, whatever the window">canvas <select id="size"></select></label>
     <div class="btns three">
-      <button id="save" title="Save a still at the canvas size">png</button>
-      <button id="gif" title="Record a looping gif, about 2.3 seconds">gif</button>
-      <button id="vid" title="Record 5 seconds of mp4, or webm where mp4 is unsupported">video</button>
+      <button id="save" title="Save a still at the canvas size"><svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-image"/></svg>png</button>
+      <button id="gif" title="Record a looping gif, about 2.3 seconds"><svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-loop"/></svg>gif</button>
+      <button id="vid" title="Record 5 seconds of mp4, or webm where mp4 is unsupported"><svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-video"/></svg>video</button>
     </div>
-    <div class="btns">
-      <button id="psave" title="Save every control as a named preset">save preset</button>
-      <button id="pdel" title="Delete the selected preset">delete preset</button>
-    </div>
-    <span id="status"></span>
+    <p id="status" role="status" aria-live="polite"><svg class="i" aria-hidden="true" viewBox="0 0 24 24"><use href="#i-check"/></svg><span></span></p>
 </div>
 <script>
 'use strict';
@@ -1101,10 +1135,17 @@ fillPresetMenu('');
 
 const statusEl = document.getElementById('status');
 const BUSY_RE = /recording|encoding|\u2026/;
+const BAD_RE = /couldn't|isn't|can't|didn't|unavailable|blocked|built-in|failed|wasn't/i;
+const statusText = statusEl.querySelector('span');
+const statusIcon = statusEl.querySelector('use');
 const say = m => {
-  statusEl.textContent = m;
+  statusText.textContent = m || '';
+  const plain = (m || '').replace(/\u2019/g, "'");   // curly apostrophes still have to match
+  const busy = !!m && BUSY_RE.test(m), bad = BAD_RE.test(plain);
   statusEl.classList.toggle('on', !!m);
-  statusEl.classList.toggle('busy', !!m && BUSY_RE.test(m));
+  statusEl.classList.toggle('busy', busy);
+  statusEl.classList.toggle('bad', bad);
+  statusIcon.setAttribute('href', busy ? '#i-busy' : bad ? '#i-alert' : '#i-check');
 };
 function download(blobOrUrl, name) {
   const a = document.createElement('a');
