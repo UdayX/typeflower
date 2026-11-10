@@ -89,7 +89,8 @@
   #ui h2 { display: flex; align-items: center; gap: 10px;
     margin: 24px 0 10px; font: 500 11px/1 var(--ui); letter-spacing: .14em;
     text-transform: uppercase; color: var(--fg-3); }
-  #ui h2::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+  #ui h2::after { content: ""; order: 1; flex: 1; height: 1px; background: var(--line-soft); }
+  #ui h2 button { order: 2; }
   #ui h2:first-of-type { margin-top: 4px; }
 
   #ui label { display: grid; grid-template-columns: 1fr 140px; gap: 10px;
@@ -124,10 +125,9 @@
   #pdel:hover:not([disabled]) { color: var(--accent); border-color: var(--accent-soft); }
   .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 2px; }
   .btns.three { grid-template-columns: repeat(3, 1fr); }
-  .btns.end { grid-template-columns: auto; justify-content: end; margin: 6px 0 2px; }
-  .btns.end button { height: 24px; padding: 0 10px; color: var(--fg-2);
-    background: transparent; border-color: var(--line-soft); }
-  .btns.end button:hover { color: var(--fg); background: var(--raised); }
+  #ui h2 button { height: 21px; padding: 0 8px; font-size: 11px; color: var(--fg-3);
+    background: transparent; border-color: var(--line-soft); letter-spacing: .02em;
+    text-transform: none; }
 
   #tap { width: 100%; min-height: 54px; padding: 8px 9px; resize: vertical;
     font: 12px/1.45 var(--mono); letter-spacing: .02em; caret-color: var(--accent);
@@ -161,6 +161,20 @@
 
   input[type=checkbox] { justify-self: start; width: 15px; height: 15px; margin: 0;
     accent-color: var(--accent); cursor: pointer; }
+
+  /* ---------- disclosure ---------- */
+  details { margin: 2px 0 4px; }
+  summary { display: flex; align-items: center; gap: 7px; height: 26px; cursor: pointer;
+    list-style: none; color: var(--fg-3); font-size: 11px; letter-spacing: .01em;
+    transition: color .14s var(--ease); }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: ""; width: 7px; height: 7px; border-right: 1.3px solid currentColor;
+    border-bottom: 1.3px solid currentColor; transform: rotate(-45deg) translate(-1px, -1px);
+    transition: transform .18s var(--ease); }
+  details[open] summary::before { transform: rotate(45deg) translate(-1px, -1px); }
+  details[open] summary { color: var(--fg-2); }
+  details > label:first-of-type { margin-top: 4px; }
+  .lead { margin-bottom: 10px; }
 
   /* ---------- status ---------- */
   #status { display: flex; align-items: center; gap: 7px; min-height: 16px; margin-top: 12px;
@@ -228,65 +242,72 @@
     </svg>
     <b>Type<i>flower</i></b>
   </div>
-  <h2>type</h2>
+  <label class="lead" title="Load a saved look, then make it yours">start from <select id="preset"></select></label>
+
+  <h2>type <button id="clear" title="Empty the text">clear</button></h2>
     <textarea id="tap" rows="2" placeholder="type here…" autocomplete="off" spellcheck="false"></textarea>
-    <div class="btns end"><button id="clear" title="Empty the text">clear</button></div>
     <label title="Typeface used to set the text">face <select id="face"></select></label>
-    <label title="Load a font from your machine — or drop one anywhere on the page">your font
-      <span class="file"><span id="fontname">choose a file</span>
-        <input id="fontfile" type="file" accept=".ttf,.otf,.woff,.woff2,font/*" multiple></span></label>
-    <label>weight <select id="weight">
-      <option value="400">regular</option><option value="700">bold</option>
-      <option value="900" selected>black</option></select></label>
-    <label>case <select id="case">
-      <option value="upper">UPPER</option><option value="as">as typed</option>
-      <option value="lower">lower</option></select></label>
     <label title="Poster fits one or two lines to the canvas; paragraph wraps a block of text">layout <select id="layout">
       <option value="poster">poster</option><option value="para">paragraph</option></select></label>
-    <label title="Text size, used in paragraph layout (poster layout fits to the canvas)">text size <input id="tsize" type="range" min="3" max="16" step="1" value="7"></label>
-    <label title="Letter-spacing">tracking <input id="track" type="range" min="-8" max="30" step="1" value="5"></label>
-    <label title="Line height">leading <input id="lead" type="range" min="80" max="200" step="5" value="108"></label>
-    <label>align <select id="align">
-      <option value="center">center</option><option value="left">left</option>
-      <option value="right">right</option></select></label>
+    <details>
+      <summary>type detail</summary>
+      <label title="Load a font from your machine — or drop one anywhere on the page">your font
+        <span class="file"><span id="fontname">choose a file</span>
+          <input id="fontfile" type="file" accept=".ttf,.otf,.woff,.woff2,font/*" multiple></span></label>
+      <label>weight <select id="weight">
+        <option value="400">regular</option><option value="700">bold</option>
+        <option value="900" selected>black</option></select></label>
+      <label>case <select id="case">
+        <option value="upper">UPPER</option><option value="as">as typed</option>
+        <option value="lower">lower</option></select></label>
+      <label>align <select id="align">
+        <option value="center">center</option><option value="left">left</option>
+        <option value="right">right</option></select></label>
+      <label title="Text size, used in paragraph layout (poster layout fits to the canvas)">text size <input id="tsize" type="range" min="3" max="16" step="1" value="7"></label>
+      <label title="Letter-spacing">tracking <input id="track" type="range" min="-8" max="30" step="1" value="5"></label>
+      <label title="Line height">leading <input id="lead" type="range" min="80" max="200" step="5" value="108"></label>
+    </details>
+
   <h2>field</h2>
     <label title="Grow flowers inside the letters, or fill the canvas and cut the letters out of it">flowers <select id="mode">
       <option value="bloom">fill the letters</option><option value="knock">cut letters out</option></select></label>
-    <label title="How the flowers move. Every preset keeps some wind in it">motion <select id="motion">
-      <option value="wind">wind</option><option value="wave">wave</option>
-      <option value="bounce">bounce</option><option value="swirl">swirl</option>
-      <option value="jitter">jitter</option><option value="storm">storm</option></select></label>
-    <label title="Output size. Exports render at this size, whatever the window">canvas <select id="size"></select></label>
-    <label>palette <select id="pal"></select></label>
-    <label title="How palette colours are handed out. One per letter reads best">ink <select id="ink">
-      <option value="scatter">scatter</option><option value="letter">one per letter</option>
-      <option value="flow">across the line</option></select></label>
-    <label title="0 keeps letter edges clean; 100 stipples them with the full dither pattern">dither <input id="crisp" type="range" min="0" max="100" step="5" value="30"></label>
-    <label title="Size of one dithered pixel in the export">pixel <input id="pix" type="range" min="1" max="6" step="1" value="2"></label>
-    <label title="Spacing of the flower grid — bigger means fewer, larger flowers">flower size <input id="cell" type="range" min="4" max="20" step="1" value="7"></label>
-    <label title="Strength of the wind, and of every motion built on it">wind <input id="wind" type="range" min="0" max="30" step="1" value="11"></label>
     <label title="How each flower is built. Seed is a single mark and reads best on a fine grid">bloom <select id="bloom">
       <option value="daisy">daisy</option><option value="aster">aster</option>
       <option value="tulip">tulip</option><option value="berry">berry</option>
       <option value="rosette">rosette</option><option value="seed">seed</option>
       <option value="mix">mixed</option></select></label>
-    <label title="Geometry of the petals">shape <select id="shape">
-      <option value="mix">mixed</option><option value="3">triangle</option>
-      <option value="4">square</option><option value="6">hexagon</option>
-      <option value="0">round</option></select></label>
-    <label title="Draw a stem under each flower">stems <input id="stems" type="checkbox" checked></label>
-    <label title="Ring each flower in the background colour so neighbours stay separate">halo <input id="halo" type="checkbox" checked></label>
-  <h2>presets</h2>
-    <label title="Load a saved look. Your own presets are stored in this browser">preset <select id="preset"></select></label>
-    <div class="btns">
-      <button id="psave" title="Save every control as a named preset">save as…</button>
-      <button id="pdel" title="Delete the selected preset">delete</button>
-    </div>
-  <h2>export</h2>
+    <label title="How the flowers move. Every preset keeps some wind in it">motion <select id="motion">
+      <option value="wind">wind</option><option value="wave">wave</option>
+      <option value="bounce">bounce</option><option value="swirl">swirl</option>
+      <option value="jitter">jitter</option><option value="storm">storm</option></select></label>
+    <label>palette <select id="pal"></select></label>
+    <label title="Spacing of the flower grid — bigger means fewer, larger flowers">flower size <input id="cell" type="range" min="4" max="20" step="1" value="7"></label>
+    <label title="Strength of the wind, and of every motion built on it">wind <input id="wind" type="range" min="0" max="30" step="1" value="11"></label>
+    <details>
+      <summary>field detail</summary>
+      <label title="How palette colours are handed out. One per letter reads best">ink <select id="ink">
+        <option value="scatter">scatter</option><option value="letter">one per letter</option>
+        <option value="flow">across the line</option></select></label>
+      <label title="Geometry of the petals">shape <select id="shape">
+        <option value="mix">mixed</option><option value="3">triangle</option>
+        <option value="4">square</option><option value="6">hexagon</option>
+        <option value="0">round</option></select></label>
+      <label title="0 keeps letter edges clean; 100 stipples them with the full dither pattern">dither <input id="crisp" type="range" min="0" max="100" step="5" value="30"></label>
+      <label title="Size of one dithered pixel in the export">pixel <input id="pix" type="range" min="1" max="6" step="1" value="2"></label>
+      <label title="Draw a stem under each flower">stems <input id="stems" type="checkbox" checked></label>
+      <label title="Ring each flower in the background colour so neighbours stay separate">halo <input id="halo" type="checkbox" checked></label>
+    </details>
+
+  <h2>save</h2>
+    <label title="Output size. Exports render at this size, whatever the window">canvas <select id="size"></select></label>
     <div class="btns three">
       <button id="save" title="Save a still at the canvas size">png</button>
       <button id="gif" title="Record a looping gif, about 2.3 seconds">gif</button>
       <button id="vid" title="Record 5 seconds of mp4, or webm where mp4 is unsupported">video</button>
+    </div>
+    <div class="btns">
+      <button id="psave" title="Save every control as a named preset">save preset</button>
+      <button id="pdel" title="Delete the selected preset">delete preset</button>
     </div>
     <span id="status"></span>
 </div>
@@ -1031,7 +1052,7 @@ function applyState(st) {
 function fillPresetMenu(select) {
   const ps = document.getElementById('preset');
   ps.textContent = '';
-  ps.appendChild(new Option('\u2014', ''));
+  ps.appendChild(new Option('a preset\u2026', ''));
   const add = (label, names) => {
     if (!names.length) return;
     const g = document.createElement('optgroup'); g.label = label;

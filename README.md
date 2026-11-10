@@ -29,12 +29,16 @@ Nothing is a filter over a bitmap — the letters are typeset, sampled and rebui
 
 ## Controls
 
+The panel asks for a handful of decisions and hides the rest until you want them.
+
 | Group | What it does |
 |---|---|
-| **type** | Text, 8 system faces plus 10 web faces, weight, case, poster or paragraph layout, tracking, leading, alignment |
-| **field** | Flowers fill the letters or get cut out of a full field; 6 motion presets; canvas size; palette; ink strategy; dither amount; pixel size; flower size; wind; 6 flower species; petal shape; stems; halos |
-| **presets** | Four built-in looks, plus your own saved to this browser |
-| **export** | PNG, GIF, MP4 — all at the canvas size, not the window size |
+| **start from** | A built-in look, or one of your own, as the opening move |
+| **type** | Your text, the face, poster or paragraph |
+| **field** | Flowers fill the letters or get cut out of a full field; species; motion; palette; flower size; wind |
+| **save** | Canvas size, then PNG, GIF or MP4 — all at that size, not the window's |
+
+Two disclosures hold everything else. **type detail**: your own font, weight, case, alignment, text size, tracking, leading. **field detail**: ink strategy, petal shape, dither amount, pixel size, stems, halos.
 
 Press `⌘\` (or `Ctrl+\`) to hide the panel and give the canvas the whole window.
 
