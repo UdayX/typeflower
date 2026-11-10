@@ -1,5 +1,7 @@
 # Typeflower
 
+**[Open the tool →](https://udayx.github.io/typeflower/)**
+
 Type something. It grows back as a field of geometric flowers, dithered to a six-colour palette and moving in a wind that is entirely made up.
 
 ![Type Flower rendered as dithered flowers, one colour per letter](docs/hero.png)
@@ -12,7 +14,7 @@ One HTML file. No build step, no dependencies, no server — open it and it runs
 open index.html
 ```
 
-Or host the file anywhere static (GitHub Pages works: Settings → Pages → deploy from `main`, root).
+Or use the hosted copy at **[udayx.github.io/typeflower](https://udayx.github.io/typeflower/)** — same file, nothing else to install.
 
 ## What it does
 
