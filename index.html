@@ -1001,6 +1001,8 @@ async function selftest() {
   const results = [];
   const check = (name, pass, note = '') => results.push({ name, pass: !!pass, note });
   const settle = (ms = 420) => new Promise(r => setTimeout(r, ms));
+  // a resize leaves the buffer cleared until the next frame dithers it, so sample after one
+  const painted = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   const before = getState();
   const set = (id, v) => {
     const el = document.getElementById(id);
@@ -1040,6 +1042,7 @@ async function selftest() {
     check('all motion presets return finite offsets', finite);
 
     // the dither only ever emits palette colours
+    await painted();
     const d = bx.getImageData(0, 0, W, H).data;
     const inPal = new Set(palRGB.map(p => p.join(',')));
     let stray = 0;
@@ -1047,6 +1050,7 @@ async function selftest() {
     check('every pixel is a palette colour', stray === 0, stray + ' stray');
 
     // gif round-trip is pixel exact
+    await painted();
     const frame0 = idx.slice();
     const img = new Image();
     img.src = URL.createObjectURL(await encodeGIF([frame0], W, H, palRGB.slice(), 5));
